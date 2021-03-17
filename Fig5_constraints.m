@@ -1,13 +1,16 @@
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control',
+% % Royal Society Open Science, 2021
 % 
 %% Script constraints.m
 % Simulations with maximal capacity on tracing or diagnosis
+% The two panels in Fig 5 in the main text are obtained setting 
+% max_capacity = 'CT' or 'Diag', respectively
 
 clear
 close all
@@ -17,9 +20,9 @@ step = 0.05; % stepsize for numerical solution
 % Epidemiological parameters
 
 % Basic reproduction number
-R0 = 1.5; % 2.5;
+R0 = 1.5; 
 
-% Distribution of incubation time: Gamma distribution (Overton et al)
+% Distribution of incubation time: Gamma distribution (Overton et al, 2020)
 mean_incubation = 4.84;
 std_incubation = 2.79;
 
@@ -29,7 +32,7 @@ scale_incubation = std_incubation^2/mean_incubation;
 density_incubation_f = @(s) gampdf(s,shape_incubation,scale_incubation);
 surv_symptoms_f = @(s) 1-integral(@(y) density_incubation_f(y),0,s);
 
-% infectiousness profile: Gamma distribution (Ferretti et al)
+% infectiousness profile: Gamma distribution (Ferretti et al, 2020)
 bmax = 20; % maximal bound to infectiousness period
 
 mean_beta = 5;
@@ -39,9 +42,8 @@ shape_beta = (mean_beta/std_beta)^2;
 scale_beta = std_beta^2/mean_beta;
 
 beta_transm = @(x) R0*(x<=bmax).*gampdf(x,shape_beta,scale_beta);
-% beta_transm = @(x) R0*(x<=bmax).*wblpdf(x,scale_wbl_beta,shape_wbl_beta);
 
-% percentage symptomatic from He et al Systematic review: 85%
+% percentage symptomatic from He et al, 2020, Systematic review: 85%
 epsilon_s = 0.85;
 
 % Max diagnosis
@@ -126,7 +128,6 @@ for ind_test = 1:3
     rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
 
     %% Simulation of the nonlinear model
-
 
     % definition of the initial history function
     incidence_f = @(x) I0*exp(rd*x);
@@ -277,35 +278,31 @@ for ind_test = 1:3
         plot(step*[nc,nc],[h_ct(it,nc),0],'LineWidth',2,'LineStyle','--','Color',colorscode(ind_color,:),'HandleVisibility','off');
         plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorscode(ind_color,:));
         plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorscode(ind_color,:),'HandleVisibility','off');
-%         plot(step*(1:nc),pdf_ct(1:nc),'LineWidth',2,'LineStyle',':','Color',colorscode(ind_color,:),'HandleVisibility','off');
         axis([0 cmax 0 0.3])
         ind_color = ind_color+1;
         end
         
     end
-    
-figure(7)
-subplot(3,1,ind_test)
-legend('time $=$10', ['time $=$',num2str(T1+duration+10)],'Interpreter','latex','Location','NorthWest');
-set(gca,'fontsize',14)
+        
+    figure(7)
+    subplot(3,1,ind_test)
+    legend('time $=$10', ['time $=$',num2str(T1+duration+10)],'Interpreter','latex','Location','NorthWest');
+    set(gca,'fontsize',14)
 
-figure(30); hold on
-subplot(3,2,2*(ind_test-1)+1)
-plot(tgrid, incidence_det,'LineWidth',2); hold on
-plot(tgrid, num_diagnosed_det,'LineWidth',2); hold on
-plot(tgrid, num_traced_det,'LineWidth',2); hold on
-legend('Incidence','Diagnosed','Traced','Location','NorthWest');
-xlabel('time','Interpreter','latex')
-plot([0 Tf],[Max_Test Max_Test],'-.','HandleVisibility','off')
-%axis([0 Tf 0 1e-6])
+    figure(30); hold on
+    subplot(3,2,2*(ind_test-1)+1)
+    plot(tgrid, incidence_det,'LineWidth',2); hold on
+    plot(tgrid, num_diagnosed_det,'LineWidth',2); hold on
+    plot(tgrid, num_traced_det,'LineWidth',2); hold on
+    legend('Incidence','Diagnosed','Traced','Location','NorthWest');
+    xlabel('time','Interpreter','latex')
+    plot([0 Tf],[Max_Test Max_Test],'-.','HandleVisibility','off')
 
-subplot(3,2,2*ind_test)
-plot(tgrid(2:end), log(incidence_det(2:end)./incidence_det(1:end-1))/step,'LineWidth',2); hold on
-plot([0 Tf], [0 0],'Color',[0.5 0.5 0.5],'LineWidth',1,'LineStyle','--','HandleVisibility','off'); hold on
-%legend('Instantaneous growth rate')
-%title('Effect of a maximal testing capacity')
-xlabel('time','Interpreter','latex')
-ylabel('growth rate','Interpreter','latex')
+    subplot(3,2,2*ind_test)
+    plot(tgrid(2:end), log(incidence_det(2:end)./incidence_det(1:end-1))/step,'LineWidth',2); hold on
+    plot([0 Tf], [0 0],'Color',[0.5 0.5 0.5],'LineWidth',1,'LineStyle','--','HandleVisibility','off'); hold on
+    xlabel('time','Interpreter','latex')
+    ylabel('growth rate','Interpreter','latex')
 
 end
         

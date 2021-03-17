@@ -1,14 +1,16 @@
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control',
+% Royal Society Open Science, 2021
 % 
 %% script tracing_window.m
 % Computes R_{d,c} and related quantities varying epsilon_c and cmax.
 % Uses the function linear_contact_tracing.m
+% Fig 3 in the main text is obtained with R0 = 2.5 and delay_diagnosis = 0
 
 clear
 close all
@@ -19,9 +21,9 @@ step = 0.05; % stepsize for numerical solution
 % Epidemiological parameters
 
 % Basic reproduction number
-R0 = 1.5; % 1.5; % 2.5
+R0 = 2.5; % 1.5; % 2.5
 
-% Distribution of incubation time: Gamma distribution (Overton et al)
+% Distribution of incubation time: Gamma distribution (Overton et al, 2020)
 mean_incubation = 4.84;
 std_incubation = 2.79;
 
@@ -31,7 +33,7 @@ scale_incubation = std_incubation^2/mean_incubation;
 density_incubation_f = @(s) gampdf(s,shape_incubation,scale_incubation);
 surv_symptoms_f = @(s) 1-integral(@(y) density_incubation_f(y),0,s);
 
-% infectiousness profile: Gamma distribution (Ferretti et al)
+% infectiousness profile: Gamma distribution (Ferretti et al, 2020)
 bmax = 20; % maximal bound to infectiousness period
 
 mean_beta = 5;
@@ -41,14 +43,13 @@ shape_beta = (mean_beta/std_beta)^2;
 scale_beta = std_beta^2/mean_beta;
 
 beta_transm = @(x) R0*(x<=bmax).*gampdf(x,shape_beta,scale_beta);
-% beta_transm = @(x) R0*(x<=bmax).*wblpdf(x,scale_wbl_beta,shape_wbl_beta);
 
-% percentage symptomatic from He et al Systematic review: 85%
+% percentage symptomatic from He et al, 2020, Systematic review: 85%
 epsilon_s = 0.85; % percentage of symptomatic individuals
 
 % diagnosis parameters
 dmax = 20;
-delay_diagnosis = 2; % 2; % 0;
+delay_diagnosis = 0; % 2; % 0;
 epsilon_d = 1; % fraction of symptomatic individuals diagnosed
 
 density_diagnosis = @(x) epsilon_d*epsilon_s*(x<=dmax).*gampdf(x-delay_diagnosis,shape_incubation,scale_incubation);
@@ -118,7 +119,6 @@ for index_y = 1:length(epsilon_c_vector)
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
     x0(1:nc)=ones(1,nc);
     x0(end)=rd;
-    % linear_contact_tracing(x0(1:N),x0(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
 
     options = optimoptions('fsolve','Display','none','MaxIter',100000);
     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
@@ -161,7 +161,6 @@ end
     plot(step*[nc,nc],[h_ct(nc),0],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
     axis([0 cmax 0 0.2])
     title('Tracing rate','Interpreter','latex')
-    %set(gca,'fontsize',14)
 
     subplot(2,2,2)
     hold on
@@ -170,17 +169,14 @@ end
     plot(step*(1:nd),h_d(1:nd)+h_ct(1:nd),'LineWidth',2,'Color',colorscode(index_x,:));
     plot(step*[nd,nd],[h_d(nd)+h_ct(nd),0],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
     title('Detection rate','Interpreter','latex')
-    %set(gca,'fontsize',14)
 
     subplot(2,2,3)
     hold on
     plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorscode(index_x,:));
     plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
-%    plot(step*(1:nc),pdf_ct(1:nc),'LineWidth',2,'LineStyle',':','Color',colorscode(index_x,:),'HandleVisibility','off');
     axis([0 cmax 0 0.5])
     title('Tracing cdf','Interpreter','latex')
     xlabel('age since infection','Interpreter','latex');
-    %set(gca,'fontsize',14)
 
     subplot(2,2,4); 
     hold on
@@ -188,10 +184,8 @@ end
         plot(step*(1:nd),cdf_diag(1:nd),'LineWidth',2,'Color',[0.5 0.5 0.5]);
     end
     plot(step*(1:nd),cdf_diag_ct(1:nd),'LineWidth',2,'Color',colorscode(index_x,:));
-%    plot(step*(1:nc),pdf_ct(1:nc),'LineWidth',2,'LineStyle',':','Color',colorscode(index_x,:),'HandleVisibility','off');
     title('Detection cdf','Interpreter','latex')
     xlabel('age since infection','Interpreter','latex');
-    %set(gca,'fontsize',14)
 
 end
 
@@ -209,9 +203,8 @@ for jj=1:4
     legenddiag{jj+1} = legendname{jj};
 end
 subplot(2,2,4)
-% legend(legendname,'Location','SouthEast')
 legend(legenddiag,'Location','SouthEast')
-%set(gca,'fontsize',14)
+set(gca,'fontsize',14)
 
 
 %% Contour plots
@@ -235,14 +228,14 @@ set(gca,'fontsize',14)
 
 figure
 [C,h] = contour(XX,YY,rct_matrix,[-0.5:0.02:0.5],'LineWidth',2); hold on
-% Uncomment the following for manual labelling:
-hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
-for i = 1:length(hcl)
-    oldLabelText = get(hcl(i), 'String');
-    doubl_time = round(log(2)./str2double(oldLabelText));
-    newLabelText = num2str(doubl_time);
-    set(hcl(i), 'String', newLabelText);
-end
+% % Uncomment the following for manual labelling:
+% hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
+% for i = 1:length(hcl)
+%     oldLabelText = get(hcl(i), 'String');
+%     doubl_time = round(log(2)./str2double(oldLabelText));
+%     newLabelText = num2str(doubl_time);
+%     set(hcl(i), 'String', newLabelText);
+% end
 xlabel('tracing window','Interpreter','latex');
 ylabel('tracing coverage','Interpreter','latex');
 title('Doubling time','Interpreter','latex');
@@ -250,19 +243,15 @@ set(gca,'fontsize',14)
 
 figure
 [C,h] = contour(XX,YY,Theta_d-Theta_ct,'LineWidth',2); hold on
-% Uncomment the following for manual labelling:
-hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
-for i = 1:length(hcl)
-    oldLabelText = get(hcl(i), 'String');
-    percentage = str2double(oldLabelText)*100;
-    newLabelText = [num2str(percentage) ' %'];
-    set(hcl(i), 'String', newLabelText);
-end
+% % Uncomment the following for manual labelling:
+% hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
+% for i = 1:length(hcl)
+%     oldLabelText = get(hcl(i), 'String');
+%     percentage = str2double(oldLabelText)*100;
+%     newLabelText = [num2str(percentage) ' %'];
+%     set(hcl(i), 'String', newLabelText);
+% end
 xlabel('tracing window','Interpreter','latex');
 ylabel('tracing coverage','Interpreter','latex');
 title('Transmission prevented by contact tracing only','Interpreter','latex');
 set(gca,'fontsize',14)
-
-
-
-

@@ -1,22 +1,24 @@
 function output = linear_contact_tracing(h_c,r,step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control', 
+% Royal Society Open Science, 2021
 % 
 %% function linear_contact_tracing.m
 % computes the right-hand side of the system in the linear approximation
-% h_c vector of the contact tracing hazard rate (unknown in the system)
+% INPUT:
+% h_c vector of the contact tracing rate (unknown in the system)
 % r - rate of exponential growth (unknown in the system)
 % step - stepsize
-% nc - index corresponding to maximal contact tracing age
+% nc - index corresponding to maximal contact tracing age of infection
 % nd - index corresponding to maximal diagnosis (nd>nc)
 % epsilon_c - fraction of traced contacts
 % beta_mat - vector with transmissibility values
-% h_d - vector with diagnosis hazard rate
+% h_d - vector with diagnosis rate
 % surv_d - vector with survival probabilities to diagnosis
 
 

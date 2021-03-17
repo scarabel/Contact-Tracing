@@ -1,10 +1,11 @@
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control',
+% Royal Society Open Science, 2021
 % 
 %% Script R0_ec.m
 % Computes the contour lines of R_{d,c}=1 in the plane (R0,epsilon_c).
@@ -17,7 +18,7 @@ step = 0.05; % stepsize for numerical solution
 
 % Epidemiological parameters
 
-% Distribution of incubation time: Gamma distribution (Overton et al)
+% Distribution of incubation time: Gamma distribution (Overton et al, 2020)
 mean_incubation = 4.84;
 std_incubation = 2.79;
 
@@ -27,7 +28,7 @@ scale_incubation = std_incubation^2/mean_incubation;
 density_incubation_f = @(s) gampdf(s,shape_incubation,scale_incubation);
 surv_symptoms_f = @(s) 1-integral(@(y) density_incubation_f(y),0,s);
 
-% infectiousness profile: Gamma distribution (Ferretti et al)
+% infectiousness profile: Gamma distribution (Ferretti et al, 2020)
 bmax = 20; % maximal bound to infectiousness period
 
 mean_beta = 5;
@@ -36,7 +37,7 @@ std_beta = 1.9;
 shape_beta = (mean_beta/std_beta)^2;
 scale_beta = std_beta^2/mean_beta;
 
-% percentage symptomatic from He et al Systematic review: 85%
+% percentage symptomatic from He et al, 2020, Systematic review: 85%
 epsilon_s = 0.85;
 
 % diagnosis parameters
@@ -132,11 +133,9 @@ end
 
 [XX,YY]=meshgrid(R0_vector,epsilon_c_vector);
 
-% colorscode = jet(Lz);
 figure
 contour(XX,YY,Rct_matrix,0.2:0.2:3,'ShowText','on','LineWidth',2); hold on
 xlabel('$R_0$','Interpreter','latex');
 ylabel('fraction of contacts traced','Interpreter','latex');
 title('Effective reproduction number $R_{d,c}$','Interpreter','latex');
 set(gca,'fontsize',14)
-

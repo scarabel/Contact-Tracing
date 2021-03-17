@@ -1,14 +1,17 @@
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control',
+% Royal Society Open Science, 2021
 % 
 %% script delay_diagnosis.m
 % Computes R_{d,c} and related quantities varying epsilon_c and the diagnosis delay.
 % Uses the function linear_contact_tracing.m
+% Figure SM2 in the Supplementary Material is obtained with
+% R0 = 2.5 and R0 = 1.5, respectively
 
 % Iterations to explore different combinations of parameters
 
@@ -17,13 +20,12 @@ close all
 
 step = 0.05; % stepsize for numerical solution
 
-
 % Epidemiological parameters
 
 % Basic reproduction number
 R0 = 2.5; % 1.5; % 2.5
 
-% Distribution of incubation time: Gamma distribution (Overton et al)
+% Distribution of incubation time: Gamma distribution (Overton et al, 2020)
 mean_incubation = 4.84;
 std_incubation = 2.79;
 
@@ -33,7 +35,7 @@ scale_incubation = std_incubation^2/mean_incubation;
 density_incubation_f = @(s) gampdf(s,shape_incubation,scale_incubation);
 surv_symptoms_f = @(s) 1-integral(@(y) density_incubation_f(y),0,s);
 
-% infectiousness profile: Gamma distribution (Ferretti et al)
+% infectiousness profile: Gamma distribution (Ferretti et al, 2020)
 bmax = 20; % maximal bound to infectiousness period
 
 mean_beta = 5;
@@ -43,9 +45,8 @@ shape_beta = (mean_beta/std_beta)^2;
 scale_beta = std_beta^2/mean_beta;
 
 beta_transm = @(x) R0*(x<=bmax).*gampdf(x,shape_beta,scale_beta);
-% beta_transm = @(x) R0*(x<=bmax).*wblpdf(x,scale_wbl_beta,shape_wbl_beta);
 
-% percentage symptomatic from He et al Systematic review: 85%
+% percentage symptomatic from He et al, 2020, Systematic review: 85%
 epsilon_s = 0.85; % percentage of symptomatic individuals
 
 % diagnosis parameters
@@ -118,8 +119,7 @@ for index_y = 1:length(epsilon_c_vector)
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
     x0(1:nc)=ones(1,nc);
     x0(end)=rd;
-    % linear_contact_tracing(x0(1:N),x0(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
-
+    
     options = optimoptions('fsolve','Display','none','MaxIter',100000);
     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
     h_ct = Sol(1:N);
@@ -149,7 +149,6 @@ end
     
 end
 
-%
 legendname{1} = 'no diagnosis delay';
 figure(5)
 legend(legendname)

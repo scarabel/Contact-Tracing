@@ -1,15 +1,17 @@
-% Copyright (c) 2020 Francesca Scarabel
+% Copyright (c) 2021 Francesca Scarabel
 % This code is distributed under the MIT license, see LICENSE.txt for 
 % licensing information. 
 % 
 % If using this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
-% limitations of contact tracing for disease outbreak control'
+% limitations of contact tracing for disease outbreak control',
+% Royal Society Open Science, 2021
 % 
 %% Script controllability.m 
 % Computes the lines R_d=1 and R_{d,c}=1 in the plane (epsilon_d,delay),
 % for given value of R0.
 % Uses the function linear_contact_tracing.m
+% The two panels in the figure are obtained for R0 = 1.5 and R0 = 2.5
 
 clear
 close all
@@ -21,7 +23,7 @@ step = 0.05; % stepsize for numerical solution
 % Basic reproduction number
 R0 = 2.5; % 2.5; % 1.5;
 
-% Distribution of incubation time: Gamma distribution (Overton et al)
+% Distribution of incubation time: Gamma distribution (Overton et al, 2020)
 mean_incubation = 4.84;
 std_incubation = 2.79;
 
@@ -31,7 +33,7 @@ scale_incubation = std_incubation^2/mean_incubation;
 density_incubation_f = @(s) gampdf(s,shape_incubation,scale_incubation);
 surv_symptoms_f = @(s) 1-integral(@(y) density_incubation_f(y),0,s);
 
-% infectiousness profile: Gamma distribution (Ferretti et al)
+% infectiousness profile: Gamma distribution (Ferretti et al, 2020)
 bmax = 20; % maximal bound to infectiousness period
 
 mean_beta = 5;
@@ -41,7 +43,6 @@ shape_beta = (mean_beta/std_beta)^2;
 scale_beta = std_beta^2/mean_beta;
 
 beta_transm = @(x) R0*(x<=bmax).*gampdf(x,shape_beta,scale_beta);
-% beta_transm = @(x) R0*(x<=bmax).*wblpdf(x,scale_wbl_beta,shape_wbl_beta);
 
 % Plot of disease-related parameters
 bgrid = 0:0.1:bmax;
@@ -158,19 +159,16 @@ end
 end
 end
 
-%%
+%% Plot
 
 [XX,YY]=meshgrid(xgrid,ygrid); 
 colorscode = jet(Lz);
 
 figure
 contour(XX,YY,Rd_matrix,[1 1],'ShowText','off','LineWidth',2,'LineColor','b'); hold on %,'DisplayName','R_d'
-% legendname = {'R_d'};
 for index_z = 1:Lz
     contour(XX,YY,Rct_matrix(:,:,index_z),[1 1],'ShowText','off','LineWidth',2,'LineColor',colorscode(index_z,:)); hold on
-    % legendname{index_z+1} = ['R_c=1, ',floor(num2str(epsilon_c_vector(index_z))*100),'%'];
 end
-% legend(legendname, 'Location', 'NorthWest','Interpreter','latex');
 
 xlabel('fraction effectively diagnosed','Interpreter','latex');
 ylabel('delay from symptoms to diagnosis','Interpreter','latex');
