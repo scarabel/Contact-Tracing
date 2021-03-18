@@ -1,11 +1,11 @@
 % Copyright (c) 2021 Francesca Scarabel
-% This code is distributed under the MIT license, see LICENSE.txt for 
+% This code is distributed under the MIT license, see LICENSE for 
 % licensing information. 
 % 
-% If using this code, please cite 
+% If you use this code, please cite 
 % Scarabel, Pellis, Ogden, Wu, 'A renewal equation model to assess roles and
 % limitations of contact tracing for disease outbreak control',
-% Royal Society Open Science, 2021
+% Royal Society Open Science, 2021.
 % 
 %% script tracing_window.m
 % Computes R_{d,c} and related quantities varying epsilon_c and cmax.
