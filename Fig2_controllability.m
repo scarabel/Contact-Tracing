@@ -139,7 +139,8 @@ for index_y = 1:Ly
     x0(end)=rd;
     % linear_contact_tracing(x0(1:N),x0(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
 
-    options = optimoptions('fsolve','Display','none','MaxIter',100000);
+    % options = optimoptions('fsolve','Display','none','MaxIter',100000);
+    % Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, options);
     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
     h_ct = Sol(1:N);
     rct = Sol(N+1);

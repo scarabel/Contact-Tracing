@@ -17,7 +17,6 @@ close all
 
 step = 0.05; % stepsize for numerical solution
 
-
 % Epidemiological parameters
 
 % Basic reproduction number
@@ -120,7 +119,8 @@ for index_y = 1:length(epsilon_c_vector)
     x0(1:nc)=ones(1,nc);
     x0(end)=rd;
 
-    options = optimoptions('fsolve','Display','none','MaxIter',100000);
+%     options = optimoptions('fsolve','Display','none','MaxIter',100000);
+%     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, options);
     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
     h_ct = Sol(1:N);
     rct = Sol(N+1);

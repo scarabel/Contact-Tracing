@@ -6,13 +6,13 @@ Scarabel F, Pellis L, Ogden NH, Wu J. A renewal equation model to assess roles a
 Please cite this reference if you use the codes.
 The codes are distributed under the MIT license, see LICENSE for licensing information. 
 
-The following files are available:
-- 'Fig2_controllability.m': script to reproduce Fig 2;
-- 'Fig3_Fig4_tracing_window.m': script to reproduce Fig 3 and Fig 4;
-- 'Fig5_constraints.m': script to reproduce Fig 5;
-- 'Fig6_R0_ec.m': script to reproduce Fig 6;
-- 'FigSM2_delay_diagnosis.m': script to reproduce Supplementary Material, Fig 2;
-- 'linear_contact_tracing.m': function to solve the linearized equation;
-- 'Figures': folder containing the figures included in the article.
+The following scripts are available:
+- 'Fig2_controllability.m': reproduces Fig 2;
+- 'Fig3_Fig4_tracing_window.m': reproduces Fig 3 and Fig 4;
+- 'Fig5_constraints.m': reproduces Fig 5;
+- 'Fig6_R0_ec.m': reproduces Fig 6;
+- 'FigSM2_delay_diagnosis.m': reproduces Supplementary Material, Fig 2;
+The script use the function 'linear_contact_tracing.m', which solves the linearized equation.
+The folder 'Figures' contains the figures included in the paper.
 
 The codes are tested on MATLAB R2020b.

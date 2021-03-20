@@ -11,7 +11,7 @@ function output = linear_contact_tracing(h_c,r,step,nc,nd,epsilon_c,beta_mat,h_d
 %% function linear_contact_tracing.m
 % computes the right-hand side of the system in the linear approximation
 % INPUT:
-% h_c vector of the contact tracing rate (unknown in the system)
+% h_c - vector of the contact tracing rate (unknown in the system)
 % r - rate of exponential growth (unknown in the system)
 % step - stepsize
 % nc - index corresponding to maximal contact tracing age of infection
