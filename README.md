@@ -15,4 +15,4 @@ The following files are available:
 - 'linear_contact_tracing.m': function to solve the linearized equation;
 - 'Figures': folder containing the figures included in the article.
 
-The codes are tested on MATLAB R2020b.
+The codes are tested on MATLAB R2020b and use the function fsolve.m from Matlab Optimization Toolbox for the solution of a nonlinear system.
