@@ -11,8 +11,7 @@
 % Computes the contour lines of R_{d,c}=1 in the plane (R0,epsilon_c).
 % Uses the function linear_contact_tracing.m
 
-clear
-close all
+clearvars
 
 step = 0.05; % stepsize for numerical solution
 
@@ -56,9 +55,16 @@ cmax = 5;
 legendname = {};
 epsilon_c_vector = 0:0.1:1;
 R0_vector = 0.2:0.2:3;
+opt_fsolve = optimoptions('fsolve','Display','none','MaxIter',100000);
 
-for index_x = 1:length(R0_vector)
-for index_y = 1:length(epsilon_c_vector)
+Lx = length(R0_vector);
+Ly = length(epsilon_c_vector);
+
+Rct_matrix = zeros(Ly,Lx);
+rct_matrix = Rct_matrix;
+
+for index_x = 1:Lx
+for index_y = 1:Ly
 
     epsilon_c = epsilon_c_vector(index_y);
     R0 = R0_vector(index_x);
@@ -100,8 +106,8 @@ for index_y = 1:length(epsilon_c_vector)
     R0 = step*trapz(beta_mat);
     Rd = step*trapz(beta_mat.*surv_d);
     
-    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
-    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
+    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1, opt_fsolve);
+    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0, opt_fsolve);
     
     % initialize probability of contact tracing
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
@@ -109,8 +115,8 @@ for index_y = 1:length(epsilon_c_vector)
     x0(end)=rd;
     % linear_contact_tracing(x0(1:N),x0(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
 
-    options = optimoptions('fsolve','Display','none','MaxIter',100000);
-    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
+    % Solve system (3.2)-(3.3) in the main text
+    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, opt_fsolve);
     h_ct = Sol(1:N);
     rct = Sol(N+1);
 
@@ -125,15 +131,16 @@ for index_y = 1:length(epsilon_c_vector)
     Rct_matrix(index_y,index_x) = Rct;
     rct_matrix(index_y,index_x) = rct;
     
+    disp(['Iteration ',num2str(index_x),'-',num2str(index_y),...
+    ' of ',num2str(Lx),'-',num2str(Ly)])
 end
-
 end
 
 %% Contour plot
 
 [XX,YY]=meshgrid(R0_vector,epsilon_c_vector);
 
-figure
+figure(6); clf
 contour(XX,YY,Rct_matrix,0.2:0.2:3,'ShowText','on','LineWidth',2); hold on
 xlabel('$R_0$','Interpreter','latex');
 ylabel('fraction of contacts traced','Interpreter','latex');

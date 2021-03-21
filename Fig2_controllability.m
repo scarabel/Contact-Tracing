@@ -13,8 +13,7 @@
 % Uses the function linear_contact_tracing.m
 % The two panels in the figure are obtained for R0 = 1.5 and R0 = 2.5
 
-clear
-close all
+clearvars
 
 step = 0.05; % stepsize for numerical solution
 
@@ -50,7 +49,7 @@ for jj=1:length(bgrid)
     B(jj) = beta_transm(bgrid(jj))/R0;
 end
 
-figure(10); hold on
+figure(1); clf; hold on
 plot(bgrid,density_incubation_f(bgrid),bgrid,B,'LineWidth',2)
 legend('incubation time','generation time')
 xlabel('age since infection','Interpreter','latex');
@@ -82,6 +81,8 @@ Lz = length(zgrid);
 
 Rd_matrix = zeros(Ly,Lx);
 Rct_matrix = zeros(Ly,Lx,Lz);
+
+opt_fsolve = optimoptions('fsolve','Display','none','MaxIter',100000);
 
 for index_z = 1:Lz
 for index_x = 1:Lx
@@ -130,8 +131,8 @@ for index_y = 1:Ly
     R0 = step*trapz(beta_mat);
     Rd = step*trapz(beta_mat.*surv_d);
     
-    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
-    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
+    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1, opt_fsolve);
+    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0, opt_fsolve);
 
     % initialize probability of contact tracing
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
@@ -139,9 +140,8 @@ for index_y = 1:Ly
     x0(end)=rd;
     % linear_contact_tracing(x0(1:N),x0(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d)
 
-    % options = optimoptions('fsolve','Display','none','MaxIter',100000);
-    % Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, options);
-    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
+    % Solve system (3.2)-(3.3) in the main text
+    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, opt_fsolve);
     h_ct = Sol(1:N);
     rct = Sol(N+1);
 
@@ -156,6 +156,8 @@ for index_y = 1:Ly
     Rd_matrix(index_y,index_x) = Rd;
     Rct_matrix(index_y,index_x,index_z) = Rct;
 
+    disp(['Iteration ',num2str(index_z),'-',num2str(index_x),'-',num2str(index_y),...
+        ' of ',num2str(Lz),'-',num2str(Lx),'-',num2str(Ly)])
 end
 end
 end
@@ -165,7 +167,7 @@ end
 [XX,YY]=meshgrid(xgrid,ygrid); 
 colorscode = jet(Lz);
 
-figure
+figure(2); clf;
 contour(XX,YY,Rd_matrix,[1 1],'ShowText','off','LineWidth',2,'LineColor','b'); hold on %,'DisplayName','R_d'
 for index_z = 1:Lz
     contour(XX,YY,Rct_matrix(:,:,index_z),[1 1],'ShowText','off','LineWidth',2,'LineColor',colorscode(index_z,:)); hold on

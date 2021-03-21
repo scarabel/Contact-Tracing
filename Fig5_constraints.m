@@ -12,8 +12,7 @@
 % The two panels in Fig 5 in the main text are obtained setting 
 % max_capacity = 'CT' or 'Diag', respectively
 
-clear
-close all
+clearvars
 
 step = 0.05; % stepsize for numerical solution
 
@@ -124,10 +123,10 @@ for ind_test = 1:3
     R0 = step*trapz(beta_mat);
     Rd = step*trapz(beta_mat.*surv_d);
 
-    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
-    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
+    r0 = fzero(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
+    rd = fzero(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
 
-    %% Simulation of the nonlinear model
+    %% Simulation of the nonlinear model (2.9) and (2.11) in the main text
 
     % definition of the initial history function
     incidence_f = @(x) I0*exp(rd*x);
@@ -213,7 +212,7 @@ for ind_test = 1:3
             if FOI_delay>0
                 h_ct(it,itau) = epsilon_c*integral_hc/FOI_delay;
             else
-                display('zero FOI');
+                disp('zero FOI');
             end
 
         end
@@ -272,7 +271,7 @@ for ind_test = 1:3
         cdf_ct = 1-exp(-step*cumsum(h_ct(it,:)))'; % Cumulative distribution of contact trac
         pdf_ct = diff([0;cdf_ct])/step;
         
-        figure(7); subplot(3,1,ind_test);
+        figure(50); subplot(3,1,ind_test);
         hold on 
         plot(step*(1:nc),h_ct(it,1:nc),'LineWidth',2,'LineStyle','--','Color',colorscode(ind_color,:),'HandleVisibility','off');
         plot(step*[nc,nc],[h_ct(it,nc),0],'LineWidth',2,'LineStyle','--','Color',colorscode(ind_color,:),'HandleVisibility','off');
@@ -284,12 +283,12 @@ for ind_test = 1:3
         
     end
         
-    figure(7)
+    figure(50)
     subplot(3,1,ind_test)
     legend('time $=$10', ['time $=$',num2str(T1+duration+10)],'Interpreter','latex','Location','NorthWest');
     set(gca,'fontsize',14)
 
-    figure(30); hold on
+    figure(5); hold on
     subplot(3,2,2*(ind_test-1)+1)
     plot(tgrid, incidence_det,'LineWidth',2); hold on
     plot(tgrid, num_diagnosed_det,'LineWidth',2); hold on
@@ -308,18 +307,18 @@ end
         
 switch max_capacity
     case 'CT'
-        figure(30)
+        figure(5)
         sgtitle('Limit on tracing','Interpreter','latex');
-        figure(7)
+        figure(50)
         sgtitle('Limit on tracing','Interpreter','latex');
     case 'Diag'
-        figure(30)
+        figure(5)
         sgtitle('Limit on diagnosis','Interpreter','latex');
-        figure(7)
+        figure(50)
         sgtitle('Limit on diagnosis','Interpreter','latex');
     otherwise
         display('unknown');
 end
 
-figure(7)
+figure(50)
 xlabel('age since infection','Interpreter','latex');

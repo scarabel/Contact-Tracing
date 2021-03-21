@@ -12,8 +12,9 @@
 % Uses the function linear_contact_tracing.m
 % Fig 3 in the main text is obtained with R0 = 2.5 and delay_diagnosis = 0
 
-clear
-close all
+clearvars
+figure(3); clf
+figure(4); clf
 
 step = 0.05; % stepsize for numerical solution
 
@@ -65,13 +66,19 @@ rct_matrix = Rct_matrix;
 Theta_d_matrix = Rct_matrix;
 Thera_ct_matrix = Rct_matrix;
 
-figure(5); hold on
+figure(3); hold on
 plot([0 1],[1 1],'Color',[0.5 0.5 0.5],'LineStyle','--','LineWidth',1,'HandleVisibility','off'); % reference line R=1
 
 colorscode = lines(length(cmax_vector));
+opt_fsolve = optimoptions('fsolve','Display','none','MaxIter',100000);
 
-for index_x = 1:length(cmax_vector)
-for index_y = 1:length(epsilon_c_vector)
+Lx = length(cmax_vector);
+Ly = length(epsilon_c_vector);
+Theta_d = zeros(Ly,Lx);
+Theta_ct = Theta_d;
+
+for index_x = 1:Lx
+for index_y = 1:Ly
 
     cmax = cmax_vector(index_x);
     epsilon_c = epsilon_c_vector(index_y);
@@ -111,17 +118,16 @@ for index_y = 1:length(epsilon_c_vector)
     R0 = step*trapz(beta_mat);
     Rd = step*trapz(beta_mat.*surv_d);
     
-    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
-    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
+    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1, opt_fsolve);
+    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0, opt_fsolve);
     
     % initialize probability of contact tracing
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
     x0(1:nc)=ones(1,nc);
     x0(end)=rd;
-
-%     options = optimoptions('fsolve','Display','none','MaxIter',100000);
-%     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, options);
-    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
+    
+    % Solve system (3.2)-(3.3) in the main text
+    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, opt_fsolve);
     h_ct = Sol(1:N);
     rct = Sol(N+1);
 
@@ -140,10 +146,13 @@ for index_y = 1:length(epsilon_c_vector)
     Theta_d(index_y,index_x) = Rd/R0;
     Theta_ct(index_y,index_x) = Rct/R0;
     
+    disp(['Iteration ',num2str(index_x),'-',num2str(index_y),...
+    ' of ',num2str(Lx),'-',num2str(Ly)])
+
 end
 
     % Plot of effective reproduction number as a function of epsilon_c
-    figure(5); hold on
+    figure(3); hold on
     plot(epsilon_c_vector,Rct_matrix(:,index_x),'LineWidth',2,'Color',colorscode(index_x,:))
     legendname{index_x} = [num2str(cmax),'d tracing'];
     
@@ -154,7 +163,7 @@ end
     cdf_diag_ct = 1-exp(-step*cumsum(h_d+h_ct)); % Cumulative distribution of contact trac
     pdf_diag_ct = diff([0;cdf_diag_ct])/step;
     
-    figure(7); 
+    figure(4); 
     subplot(2,2,1)
     hold on
     plot(step*(1:nc),h_ct(1:nc),'LineWidth',2,'Color',colorscode(index_x,:));
@@ -190,14 +199,14 @@ end
 end
 
 %%
-figure(5)
+figure(3)
 legend(legendname)
 xlabel('tracing coverage','Interpreter','latex');
 ylabel('$R_{d,c}$','Interpreter','latex');
 title('Effect of the tracing coverage on $R_{d,c}$','Interpreter','latex');
 set(gca,'fontsize',14)
 
-figure(7)
+figure(4)
 legenddiag{1} = 'no tracing';
 for jj=1:4
     legenddiag{jj+1} = legendname{jj};
@@ -212,21 +221,21 @@ set(gca,'fontsize',14)
 [XX,YY]=meshgrid(cmax_vector,epsilon_c_vector);
 
 % colorscode = jet(Lz);
-figure
+figure(30); clf;
 contour(XX,YY,Rct_matrix,0.2:0.1:2,'ShowText','on','LineWidth',2); hold on
 xlabel('tracing window','Interpreter','latex');
 ylabel('tracing coverage','Interpreter','latex');
 title('Effective reproduction number','Interpreter','latex');
 set(gca,'fontsize',14)
 
-figure
+figure(31); clf
 contour(XX,YY,rct_matrix,-0.5:0.02:0.5,'ShowText','on','LineWidth',2); hold on
 xlabel('tracing window','Interpreter','latex');
 ylabel('tracing coverage','Interpreter','latex');
 title('Growth rate','Interpreter','latex');
 set(gca,'fontsize',14)
 
-figure
+figure(32); clf
 [C,h] = contour(XX,YY,rct_matrix,[-0.5:0.02:0.5],'LineWidth',2); hold on
 % % Uncomment the following for manual labelling:
 % hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
@@ -241,7 +250,7 @@ ylabel('tracing coverage','Interpreter','latex');
 title('Doubling time','Interpreter','latex');
 set(gca,'fontsize',14)
 
-figure
+figure(33); clf
 [C,h] = contour(XX,YY,Theta_d-Theta_ct,'LineWidth',2); hold on
 % % Uncomment the following for manual labelling:
 % hcl = clabel(C,h,'manual','FontSize',12,'Color','k');
