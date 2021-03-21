@@ -15,8 +15,7 @@
 
 % Iterations to explore different combinations of parameters
 
-clear
-close all
+clearvars
 
 step = 0.05; % stepsize for numerical solution
 
@@ -58,18 +57,24 @@ legendname = {};
 epsilon_c_vector = 0:0.1:1;
 delay_vector = 0:2;
 
-Rct_matrix = zeros(length(epsilon_c_vector),length(delay_vector));
+figure(20); clf; hold on
+plot([0 1],[1 1],'Color',[0.5 0.5 0.5],'LineStyle','--','LineWidth',1,'HandleVisibility','off'); % reference line R=1
+
+colorcode = lines(length(delay_vector));
+opt_fsolve = optimoptions('fsolve','Display','none','MaxIter',100000);
+
+Lx = length(delay_vector);
+Ly = length(epsilon_c_vector);
+
+Rct_matrix = zeros(Ly,Lx);
 rct_matrix = Rct_matrix;
+
 Theta_d_matrix = Rct_matrix;
 Thera_ct_matrix = Rct_matrix;
 
-figure(5); hold on
-plot([0 1],[1 1],'Color',[0.5 0.5 0.5],'LineStyle','--','LineWidth',1,'HandleVisibility','off'); % reference line R=1
 
-colorscode = lines(length(delay_vector));
-
-for index_x = 1:length(delay_vector)
-for index_y = 1:length(epsilon_c_vector)
+for index_x = 1:Lx
+for index_y = 1:Ly
 
     delay_diagnosis = delay_vector(index_x);
     epsilon_c = epsilon_c_vector(index_y);
@@ -90,7 +95,7 @@ for index_y = 1:length(epsilon_c_vector)
     % Initialization of known parameters (discretization of functions)
     beta_mat = zeros(N,1);
     h_d = zeros(N,1);
-    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % survival diagnosis
+    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % probability of not being diagnosed
     dens_d = zeros(N,1);
 
     for itau = 1:N
@@ -112,17 +117,16 @@ for index_y = 1:length(epsilon_c_vector)
     R0 = step*trapz(beta_mat);
     Rd = step*trapz(beta_mat.*surv_d);
     
-    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1);
-    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0);
+    r0 = fsolve(@(x) 1- step*trapz(beta_mat.*exp(-x*step*(1:N)')), 0.1, opt_fsolve);
+    rd = fsolve(@(x) 1- step*trapz(beta_mat.*surv_d.*exp(-x*step*(1:N)')), r0, opt_fsolve);
     
     % initialize probability of contact tracing
     x0 = zeros(N+1,1); % the last entry will represent the exponential growth rate
     x0(1:nc)=ones(1,nc);
     x0(end)=rd;
-    
-%     options = optimoptions('fsolve','Display','none','MaxIter',100000);
-%     Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, options);
-    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0);
+
+    % Solve system (3.2)-(3.3) in the main text
+    Sol = fsolve(@(x) [x(1:N);1] - linear_contact_tracing(x(1:N),x(N+1),step,nc,nd,epsilon_c,beta_mat,h_d,surv_d), x0, opt_fsolve);
     h_ct = Sol(1:N);
     rct = Sol(N+1);
 
@@ -144,14 +148,14 @@ for index_y = 1:length(epsilon_c_vector)
 end
 
     % Plot of effective reproduction number as a function of epsilon_c
-    figure(5); hold on
-    plot(epsilon_c_vector,Rct_matrix(:,index_x),'LineWidth',2,'Color',colorscode(index_x,:))
+    figure(20); hold on
+    plot(epsilon_c_vector,Rct_matrix(:,index_x),'LineWidth',2,'Color',colorcode(index_x,:))
     legendname{index_x} = [num2str(delay_diagnosis),'d diagnosis delay'];
     
 end
 
 legendname{1} = 'no diagnosis delay';
-figure(5)
+figure(20)
 legend(legendname)
 xlabel('tracing coverage','Interpreter','latex');
 ylabel('$R_{d,c}$','Interpreter','latex');

@@ -54,7 +54,7 @@ cmax = 5;
 
 %% Simulation with constraints
 
-colorscode = lines(5);
+colorcode = lines(5);
 
 % switch max_capacity for constraints either on diagnosis or tracing:
 % 'CT' - constraints on tracing
@@ -101,7 +101,7 @@ for ind_test = 1:3
     % Initialization of known parameters
     beta_mat = zeros(N,1);
     h_d = zeros(N,1);
-    surv_d = (1-epsilon_d)*ones(N,1); % survival diagnosis
+    surv_d = (1-epsilon_d)*ones(N,1); % probability of not being diagnosed
     dens_d = zeros(N,1);
 
     for itau = 1:N
@@ -207,7 +207,7 @@ for ind_test = 1:3
 
             end
 
-            % compute hazard of contact tracing
+            % compute tracing rate
             % Assuming beta(0)=0
             if FOI_delay>0
                 h_ct(it,itau) = epsilon_c*integral_hc/FOI_delay;
@@ -273,10 +273,10 @@ for ind_test = 1:3
         
         figure(50); subplot(3,1,ind_test);
         hold on 
-        plot(step*(1:nc),h_ct(it,1:nc),'LineWidth',2,'LineStyle','--','Color',colorscode(ind_color,:),'HandleVisibility','off');
-        plot(step*[nc,nc],[h_ct(it,nc),0],'LineWidth',2,'LineStyle','--','Color',colorscode(ind_color,:),'HandleVisibility','off');
-        plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorscode(ind_color,:));
-        plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorscode(ind_color,:),'HandleVisibility','off');
+        plot(step*(1:nc),h_ct(it,1:nc),'LineWidth',2,'LineStyle','--','Color',colorcode(ind_color,:),'HandleVisibility','off');
+        plot(step*[nc,nc],[h_ct(it,nc),0],'LineWidth',2,'LineStyle','--','Color',colorcode(ind_color,:),'HandleVisibility','off');
+        plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorcode(ind_color,:));
+        plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorcode(ind_color,:),'HandleVisibility','off');
         axis([0 cmax 0 0.3])
         ind_color = ind_color+1;
         end

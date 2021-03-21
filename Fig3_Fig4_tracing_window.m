@@ -69,7 +69,7 @@ Thera_ct_matrix = Rct_matrix;
 figure(3); hold on
 plot([0 1],[1 1],'Color',[0.5 0.5 0.5],'LineStyle','--','LineWidth',1,'HandleVisibility','off'); % reference line R=1
 
-colorscode = lines(length(cmax_vector));
+colorcode = lines(length(cmax_vector));
 opt_fsolve = optimoptions('fsolve','Display','none','MaxIter',100000);
 
 Lx = length(cmax_vector);
@@ -96,7 +96,7 @@ for index_y = 1:Ly
     % Initialization of known parameters (discretization of functions)
     beta_mat = zeros(N,1);
     h_d = zeros(N,1);
-    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % survival diagnosis
+    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % probability of not being diagnosed
     dens_d = zeros(N,1);
 
     for itau = 1:N
@@ -153,7 +153,7 @@ end
 
     % Plot of effective reproduction number as a function of epsilon_c
     figure(3); hold on
-    plot(epsilon_c_vector,Rct_matrix(:,index_x),'LineWidth',2,'Color',colorscode(index_x,:))
+    plot(epsilon_c_vector,Rct_matrix(:,index_x),'LineWidth',2,'Color',colorcode(index_x,:))
     legendname{index_x} = [num2str(cmax),'d tracing'];
     
     % Plot of profile of h_ct for epsilon_c=1
@@ -166,8 +166,8 @@ end
     figure(4); 
     subplot(2,2,1)
     hold on
-    plot(step*(1:nc),h_ct(1:nc),'LineWidth',2,'Color',colorscode(index_x,:));
-    plot(step*[nc,nc],[h_ct(nc),0],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
+    plot(step*(1:nc),h_ct(1:nc),'LineWidth',2,'Color',colorcode(index_x,:));
+    plot(step*[nc,nc],[h_ct(nc),0],'LineWidth',2,'Color',colorcode(index_x,:),'HandleVisibility','off');
     axis([0 cmax 0 0.2])
     title('Tracing rate','Interpreter','latex')
 
@@ -175,14 +175,14 @@ end
     hold on
     plot(step*(1:nd),h_d(1:nd),'LineWidth',2,'Color',[0.5 0.5 0.5]);
     plot(step*[nd,nd],[h_d(nd),0],'LineWidth',2,'Color',[0.5 0.5 0.5],'HandleVisibility','off');
-    plot(step*(1:nd),h_d(1:nd)+h_ct(1:nd),'LineWidth',2,'Color',colorscode(index_x,:));
-    plot(step*[nd,nd],[h_d(nd)+h_ct(nd),0],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
+    plot(step*(1:nd),h_d(1:nd)+h_ct(1:nd),'LineWidth',2,'Color',colorcode(index_x,:));
+    plot(step*[nd,nd],[h_d(nd)+h_ct(nd),0],'LineWidth',2,'Color',colorcode(index_x,:),'HandleVisibility','off');
     title('Detection rate','Interpreter','latex')
 
     subplot(2,2,3)
     hold on
-    plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorscode(index_x,:));
-    plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorscode(index_x,:),'HandleVisibility','off');
+    plot(step*(1:nc),cdf_ct(1:nc),'LineWidth',2,'Color',colorcode(index_x,:));
+    plot(step*[nc,N],[cdf_ct(nc),cdf_ct(N)],'LineWidth',2,'Color',colorcode(index_x,:),'HandleVisibility','off');
     axis([0 cmax 0 0.5])
     title('Tracing cdf','Interpreter','latex')
     xlabel('age since infection','Interpreter','latex');
@@ -192,7 +192,7 @@ end
     if index_x==1
         plot(step*(1:nd),cdf_diag(1:nd),'LineWidth',2,'Color',[0.5 0.5 0.5]);
     end
-    plot(step*(1:nd),cdf_diag_ct(1:nd),'LineWidth',2,'Color',colorscode(index_x,:));
+    plot(step*(1:nd),cdf_diag_ct(1:nd),'LineWidth',2,'Color',colorcode(index_x,:));
     title('Detection cdf','Interpreter','latex')
     xlabel('age since infection','Interpreter','latex');
 
@@ -220,7 +220,6 @@ set(gca,'fontsize',14)
 
 [XX,YY]=meshgrid(cmax_vector,epsilon_c_vector);
 
-% colorscode = jet(Lz);
 figure(30); clf;
 contour(XX,YY,Rct_matrix,0.2:0.1:2,'ShowText','on','LineWidth',2); hold on
 xlabel('tracing window','Interpreter','latex');

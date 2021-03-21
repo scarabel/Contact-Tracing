@@ -84,7 +84,7 @@ for index_y = 1:Ly
     % Initialization of known parameters (discretization of functions)
     beta_mat = zeros(N,1);
     h_d = zeros(N,1);
-    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % survival diagnosis
+    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % probability of not being diagnosed
     dens_d = zeros(N,1);
 
     for itau = 1:N

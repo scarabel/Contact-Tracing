@@ -109,7 +109,7 @@ for index_y = 1:Ly
     % Initialization of known parameters (discretization of functions)
     beta_mat = zeros(N,1);
     h_d = zeros(N,1);
-    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % survival diagnosis
+    surv_d = (1-epsilon_d*epsilon_s)*ones(N,1); % probability of not being diagnosed
     dens_d = zeros(N,1);
 
     for itau = 1:N
@@ -165,12 +165,12 @@ end
 %% Plot
 
 [XX,YY]=meshgrid(xgrid,ygrid); 
-colorscode = jet(Lz);
+colorcode = jet(Lz);
 
 figure(2); clf;
 contour(XX,YY,Rd_matrix,[1 1],'ShowText','off','LineWidth',2,'LineColor','b'); hold on %,'DisplayName','R_d'
 for index_z = 1:Lz
-    contour(XX,YY,Rct_matrix(:,:,index_z),[1 1],'ShowText','off','LineWidth',2,'LineColor',colorscode(index_z,:)); hold on
+    contour(XX,YY,Rct_matrix(:,:,index_z),[1 1],'ShowText','off','LineWidth',2,'LineColor',colorcode(index_z,:)); hold on
 end
 
 xlabel('fraction effectively diagnosed','Interpreter','latex');

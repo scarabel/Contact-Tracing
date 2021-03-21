@@ -19,8 +19,10 @@ function output = linear_contact_tracing(h_c,r,step,nc,nd,epsilon_c,beta_mat,h_d
 % epsilon_c - fraction of traced contacts
 % beta_mat - vector with transmissibility values
 % h_d - vector with diagnosis rate
-% surv_d - vector with survival probabilities to diagnosis
-
+% surv_d - vector with discretised probabilities of not being diagnosed
+% OUTPUT: concatenation of a vector of length equal to the length of h_c, corresponding to the 
+% discretization of the rhs of equation (3.2) in the main text, and a scalar number corresponding to 
+% the rhs of equation (3.3) in the main text
 
     N=length(h_c);
     output_hc = zeros(N,1);
