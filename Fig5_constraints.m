@@ -317,7 +317,7 @@ switch max_capacity
         figure(50)
         sgtitle('Limit on diagnosis','Interpreter','latex');
     otherwise
-        display('unknown');
+        disp('unknown');
 end
 
 figure(50)

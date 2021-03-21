@@ -69,9 +69,8 @@ Ly = length(epsilon_c_vector);
 Rct_matrix = zeros(Ly,Lx);
 rct_matrix = Rct_matrix;
 
-Theta_d_matrix = Rct_matrix;
-Thera_ct_matrix = Rct_matrix;
-
+Theta_d = Rct_matrix;
+Theta_ct = Rct_matrix;
 
 for index_x = 1:Lx
 for index_y = 1:Ly
