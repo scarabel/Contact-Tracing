@@ -3,6 +3,7 @@ Matlab codes to solve numerically the renewal equation model of contact tracing.
 
 The codes in this repository are used to reproduce the figures in the paper:
 Scarabel F, Pellis L, Ogden NH, Wu J. A renewal equation model to assess roles and limitations of contact tracing for disease outbreak control. Royal Society Open Science, 2021.
+
 Please cite this reference if you use the codes.
 The codes are distributed under the MIT license, see LICENSE for licensing information. 
 
